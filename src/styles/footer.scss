@@ -1,0 +1,20 @@
+@import "./colors.scss";
+
+.wdc-footer-container {
+  display: flex;
+
+  padding: 0.3em 1em 1em 1em;
+  background-color: #000;
+  justify-content: flex-end;
+  color: white;
+
+  box-shadow: 0px -2px 4px #272727;
+
+  & .wdc-footer-app-info {
+    display: flex;
+    flex-direction: column;
+  }
+  & .wdc-logo-first-letter {
+    color: $red-color;
+  }
+}
