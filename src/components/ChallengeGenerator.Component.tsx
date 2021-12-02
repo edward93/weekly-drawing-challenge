@@ -1,7 +1,8 @@
 import moment from "moment";
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useState } from "react";
 import { challenge, characters, settings } from "../models/challenge";
+
+import { useUrlStorage } from "./urlStorage.hook";
 
 import "../styles/challengeGenerator.scss";
 
@@ -9,9 +10,6 @@ import "../styles/challengeGenerator.scss";
  * Challenge generator component
  */
 const ChallengeGenerator = () => {
-  const navigate = useNavigate();
-  const { urlData } = useParams<any>();
-
   //#region state
   const [challenge, setChallenge] = useState<challenge>({
     character: "Batman",
@@ -19,52 +17,14 @@ const ChallengeGenerator = () => {
     weekStartDt: moment().startOf("day").toDate(),
     weekEndDt: moment().add(7, "days").endOf("day").toDate(),
   });
-  const [payload, setPayload] = useState<string>();
   //#endregion
 
-  //#region effects
-  useEffect(() => {
-    setPayload(urlData);
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    serializeChallenge();
-    // eslint-disable-next-line
-  }, [challenge]);
-
-  useEffect(() => {
-    deserializeChallenge();
-    // eslint-disable-next-line
-  }, [payload]);
-
-  //#endregion
-
-  /**
-   * serializes challenge into a string
-   */
-  const serializeChallenge = () => {
-    if (challenge) {
-      const challengeB = btoa(JSON.stringify(challenge));
-      setPayload(challengeB);
-
-      // dynamically update the url
-      navigate(`/${challengeB}`);
-    }
-  };
-
-  /**
-   * deserializes payload into challenge
-   */
-  const deserializeChallenge = () => {
-    if (payload) {
-      const deserializedChallenge = JSON.parse(atob(payload)) as challenge;
-      if (deserializedChallenge.weekEndDt) deserializedChallenge.weekEndDt = new Date(deserializedChallenge.weekEndDt);
-      if (deserializedChallenge.weekStartDt)
-        deserializedChallenge.weekStartDt = new Date(deserializedChallenge.weekStartDt);
-      setChallenge(deserializedChallenge);
-    }
-  };
+  useUrlStorage(challenge, setChallenge, (value: string) => {
+    const deserializedChallenge = JSON.parse(value) as challenge;
+    if (deserializedChallenge.weekEndDt) deserializedChallenge.weekEndDt = new Date(deserializedChallenge.weekEndDt);
+    if (deserializedChallenge.weekStartDt) deserializedChallenge.weekStartDt = new Date(deserializedChallenge.weekStartDt);
+    return deserializedChallenge;
+  });
 
   /**
    * on "generate" click handler
